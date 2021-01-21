@@ -72,13 +72,13 @@ class App extends Component {
           placeholder="person1"
           value={this.state.msu}
           onChangeText={(msu) => {
-            // console.log(msu);
+            console.log(msu);
             this.setState({
               msu,
             });
           }}></TextInput>
         <Text>PUSH THE CAT !!!</Text>
-
+        {/* Pressed to roll the wheel */}
         <TouchableOpacity
           style={{width: '100%', height: 100}}
           onPress={() => {
