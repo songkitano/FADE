@@ -9,8 +9,11 @@ import {
   TextInput,
 } from 'react-native';
 
-import WheelOfFortune from 'react-native-wheel-of-fortune';
+import CustomWheel from './components/CustomWheel';
+// import WheelOfFortune from 'react-native-wheel-of-fortune';
 import LottieView from 'lottie-react-native';
+import { Navigation } from 'react-native-navigation';
+import RNSmtpMailer from "react-native-smtp-mailer";
 
 const participants = [
   '%10',
@@ -33,8 +36,34 @@ class App extends Component {
       started: false,
       msu: '',
       msa: '',
+      isPlay: false,
     };
     this.child = null;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if(prevState !== this.state && prevState.winnerIndex !== this.state.winnerIndex){
+      if(this.state.winnerIndex != null){
+        Navigation.push(this.props.componentId, {
+          component: {
+            name: 'Result',
+            options: {
+              topBar: {
+                visible: false
+              }
+            },
+            passProps: {
+              winner: participants[this.state.winnerIndex],
+              sendEmail: this.sendEmail,
+            }
+          }
+        });
+        this.setState({
+          msu: '',
+          msa: ''
+        })
+      }
+    }
   }
 
   buttonPress = () => {
@@ -44,7 +73,38 @@ class App extends Component {
     this.child._onPress();
   };
 
+  onFinish = () => {
+    this.setState({
+      isPlay: false
+    });
+    
+  }
+
+  sendEmail = () => {
+    RNSmtpMailer.sendMail({
+      mailhost: "smtp.gmail.com",
+      port: "465",
+      ssl: true, //if ssl: false, TLS is enabled,**note:** in iOS TLS/SSL is determined automatically, so either true or false is the same
+      username: "silinh66@gmail.com",
+      password: "tmkITC98",
+      from: "silinh66@gmail.com",
+      recipients: "nguyenlinh5266@gmail.com",
+      subject: "subject",
+      htmlBody: `<h1>App Infomation</h1><p>Person1: ${this.state.msu} Person2: ${this.state.msa} Percent: ${participants[this.state.winnerIndex]}</p>`,
+      // attachmentPaths: ["pathToFile1.png","pathToFile2.txt","pathToFile3.csv"],
+      // attachmentNames: ["image.jpg", "firstFile.txt", "secondFile.csv"],//only used in android, these are renames of original files. in ios filenames will be same as specified in path. In ios-only application, leave it empty: attachmentNames:[] 
+      // attachmentTypes: ["img", "txt", "csv"]//needed for android, in ios-only application, leave it empty: attachmentTypes:[]
+    })
+      .then(success => console.log(success))
+      .catch(err => alert(err));
+  };
+
   render() {
+    // console.log('You win', participants[this.state.winnerIndex]);
+    console.log('isPlay', this.state.isPlay);
+    console.log('winnerIndex', this.state.winnerIndex);
+    console.log('isStarted', this.state.started);
+    console.log('------------------------------------');
     const wheelOptions = {
       rewards: participants,
       knobSize: 30,
@@ -56,6 +116,8 @@ class App extends Component {
       textAngle: 'horizontal',
       knobSource: require('./knob.png'),
       onRef: (ref) => (this.child = ref),
+      isPlay: this.state.isPlay,
+      onFinish: this.onFinish,
     };
     return (
       <View style={styles.container}>
@@ -82,13 +144,21 @@ class App extends Component {
         <TouchableOpacity
           style={{width: '100%', height: 100}}
           onPress={() => {
-            console.log('Cat pushed');
-            console.log('person1', this.state.msu);
-            console.log('person2', this.state.msa);
-            this.setState({
-              msu: '',
-              msa: '',
-            });
+            if(!this.state.started && this.state.winnerIndex === null){
+              this.child._onPress();
+              console.log('Cat pushed');
+              console.log('person1', this.state.msu);
+              console.log('person2', this.state.msa);
+              this.setState({
+                // msu: '',
+                // msa: '',
+                isPlay: true,
+              });
+            } 
+            if(this.state.winnerIndex !== null){
+              this.child._tryAgain();
+              this.sendEmail();
+            }
           }}>
           <LottieView
             source={require('./pcat.json')}
@@ -100,7 +170,7 @@ class App extends Component {
           style={{
             borderWidth: 3,
             margin: 25,
-            marginBottom: 10,
+            marginBottom: 0,
             borderRadius: 30,
             textAlign: 'center',
             width: '90%',
@@ -113,13 +183,13 @@ class App extends Component {
               msa,
             });
           }}></TextInput>
-        <WheelOfFortune
+        <CustomWheel
           options={wheelOptions}
           getWinner={(value, index) => {
             this.setState({winnerValue: value, winnerIndex: index});
           }}
         />
-        {!this.state.started && (
+        {/* {!this.state.started && (
           <View style={styles.startButtonView}>
             <TouchableOpacity
               onPress={() => this.buttonPress()}
@@ -142,7 +212,7 @@ class App extends Component {
               <Text style={styles.tryAgainText}>TRY AGAIN</Text>
             </TouchableOpacity>
           </View>
-        )}
+        )} */}
       </View>
     );
   }
