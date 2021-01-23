@@ -23,7 +23,7 @@ class CustomWheel extends Component {
       started: false,
       finished: false,
       winner: null,
-      gameScreen: new Animated.Value(width - 80),
+      gameScreen: new Animated.Value(width - 100),
       wheelOpacity: new Animated.Value(1),
       imageLeft: new Animated.Value(width / 2 - 30),
       imageTop: new Animated.Value(height / 2 - 70),
@@ -58,7 +58,7 @@ class CustomWheel extends Component {
       started: false,
       finished: false,
       winner: null,
-      gameScreen: new Animated.Value(width - 80),
+      gameScreen: new Animated.Value(width - 100),
       wheelOpacity: new Animated.Value(1),
       imageLeft: new Animated.Value(width / 2 - 30),
       imageTop: new Animated.Value(height / 2 - 70),
@@ -225,7 +225,7 @@ class CustomWheel extends Component {
               ? this.props.options.backgroundColor
               : '#fff',
             width: width - 20,
-            height: width - 20,
+            height: width - 40,
             borderRadius: (width - 20) / 2,
             borderWidth: this.props.options.borderWidth
               ? this.props.options.borderWidth
@@ -367,7 +367,7 @@ export default CustomWheel;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
     // justifyContent: 'center',
     alignItems: 'center',
   },

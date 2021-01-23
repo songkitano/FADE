@@ -7,6 +7,7 @@ import {
   Button,
   TouchableOpacity,
   TextInput,
+  Dimensions,
 } from 'react-native';
 
 import CustomWheel from './components/CustomWheel';
@@ -14,6 +15,19 @@ import CustomWheel from './components/CustomWheel';
 import LottieView from 'lottie-react-native';
 import { Navigation } from 'react-native-navigation';
 import RNSmtpMailer from "react-native-smtp-mailer";
+const Sound = require('react-native-sound')
+
+const requireAudio = require('./test.mp3');
+
+const s = new Sound(requireAudio, (e) => {
+  if (e) {
+    console.log('error', e);
+    return;
+  }
+  // s.play(() => s.release());
+  });
+
+  
 
 const participants = [
   '%10',
@@ -44,6 +58,12 @@ class App extends Component {
   componentDidUpdate(prevProps, prevState) {
     if(prevState !== this.state && prevState.winnerIndex !== this.state.winnerIndex){
       if(this.state.winnerIndex != null){
+        // s.stop(() => {
+        //   // Note: If you want to play a sound after stopping and rewinding it,
+        //   // it is important to call play() in a callback.
+        //   s.play();
+        // });
+        s.pause();
         Navigation.push(this.props.componentId, {
           component: {
             name: 'Result',
@@ -100,6 +120,7 @@ class App extends Component {
   };
 
   render() {
+    console.log('height', Dimensions.get('screen').height);
     // console.log('You win', participants[this.state.winnerIndex]);
     console.log('isPlay', this.state.isPlay);
     console.log('winnerIndex', this.state.winnerIndex);
@@ -107,7 +128,7 @@ class App extends Component {
     console.log('------------------------------------');
     const wheelOptions = {
       rewards: participants,
-      knobSize: 30,
+      knobSize: 20,
       borderWidth: 0,
       borderColor: 'pink',
       innerRadius: 30,
@@ -126,7 +147,7 @@ class App extends Component {
           style={{
             borderWidth: 3,
             margin: 25,
-            marginBottom: 20,
+            marginBottom: '3.125%',
             borderRadius: 30,
             textAlign: 'center',
             width: '90%',
@@ -142,8 +163,13 @@ class App extends Component {
         <Text>PUSH THE CAT !!!</Text>
 
         <TouchableOpacity
-          style={{width: '100%', height: 100}}
+          style={{width: '100%', height: '15.625%'}}
           onPress={() => {
+            s.play((success) => {
+              if (!success) {
+                console.log('Sound did not play')
+              }
+            })
             if(!this.state.started && this.state.winnerIndex === null){
               this.child._onPress();
               console.log('Cat pushed');
